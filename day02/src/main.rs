@@ -26,11 +26,27 @@ fn check_diff(v: &Vec<u32>) -> bool {
     true
 }
 
+fn is_safe(v: &Vec<u32>) -> bool {
+    (is_inc(v) || is_dec(v)) && check_diff(v)
+}
+
+fn is_almost_safe(v: &Vec<u32>) -> bool {
+    let mut permut = Vec::new();
+    (0..v.len()).for_each(|i| {
+        permut.push({
+            let mut to_insert = v.clone();
+            to_insert.remove(i);
+            to_insert
+        })
+    });
+    permut.iter().filter(|v| is_safe(v)).count() > 0
+}
+
 fn main() {
     let path = Path::new("data.txt");
     let contents = fs::read_to_string(path).expect("Should have been able to read the file");
 
-    let result = contents
+    let contents: Vec<_> = contents
         .split("\n")
         .map(|l| {
             l.split(" ")
@@ -38,9 +54,13 @@ fn main() {
                 .flatten()
                 .collect::<Vec<u32>>()
         })
-        .filter(|v| is_inc(v) || is_dec(v))
-        .filter(|v| check_diff(v))
-        .count();
+        .collect();
+
+    let result = contents.iter().filter(|v| is_safe(v)).count();
 
     println!("number of safe reports: {}", result);
+
+    let result = contents.iter().filter(|v| is_almost_safe(v)).count();
+
+    println!("number of single level bad safe reports: {}", result);
 }
