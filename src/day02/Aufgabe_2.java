@@ -61,10 +61,19 @@ public class Aufgabe_2 {
 					num[i] = extract(line).get(i);
 				}
 
-				if ((ascSave2(num)) || (descSave2(num))) {
-					counter2++;
-				} else {
-					continue;
+//				if ((ascSave2(num)) || (descSave2(num))) {
+//					counter2++;
+//				} else {
+//					continue;
+//				}
+				innerLoop: for (int i = 0; i < 10; i++) {
+					int[] nutz = removeOneElement(num, i);
+					if ((ascSave(nutz)) || (descSave(nutz))) {
+						counter2++;
+						break innerLoop;
+					} else {
+						continue;
+					}
 				}
 
 			}
