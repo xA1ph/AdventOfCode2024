@@ -14,12 +14,7 @@ fn apply_re(re: &Regex, s: &str) -> u32 {
 }
 
 fn cleanse_string(s: &String) -> String {
-    let mut string = "do()".to_string();
-    string.push_str(s);
-    string.push_str("don't()");
-
-    string
-        .split("do()")
+    s.split("do()")
         .map(|v| match v.split_once("don't()") {
             Some(v) => v.0,
             None => v,
