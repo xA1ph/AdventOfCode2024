@@ -17,6 +17,7 @@ public class Aufgabe_4 {
 		Path path = Path.of("src/day04/Task04.txt");
 
 		int result = 0;
+		int result2 = 0;
 		int ex = 0;
 
 		try (Stream<String> input = Files.lines(path); Stream<String> input2 = Files.lines(path)) {
@@ -93,7 +94,52 @@ public class Aufgabe_4 {
 				}
 			}
 
+			// ----------------------------------//
+
+			for (int i = 0; i < 140; i++) {
+				for (int j = 0; j < 140; j++) {
+
+					if ('A' == matrix[i][j]) {
+						try {
+							if ((i >= 1) && (j >= 1) && (i <= 138) && (j <= 138)) {
+								String upLeft = "" + matrix[i - 1][j - 1] + 'A' + matrix[i + 1][j + 1];
+								String downLeft = "" + matrix[i + 1][j - 1] + 'A' + matrix[i - 1][j + 1];
+								if (check2(upLeft) && check2(downLeft))
+									result2++;
+							}
+							if ((i >= 1) && (j >= 1) && (i <= 138) && (j <= 138)) {
+								String upLeft = "" + matrix[i - 1][j - 1] + 'A' + matrix[i + 1][j + 1];
+								String upRight = "" + matrix[i - 1][j + 1] + 'A' + matrix[i + 1][j - 1];
+								if (check2(upLeft) && check2(upRight)) {
+									result2++;
+								}
+							}
+							if ((i >= 1) && (j >= 1) && (i <= 138) && (j <= 138)) {
+								String upRight = "" + matrix[i - 1][j + 1] + 'A' + matrix[i + 1][j - 1];
+								String downRight = "" + matrix[i + 1][j + 1] + 'A' + matrix[i - 1][j - 1];
+								if (check2(upRight) && check2(downRight)) {
+									result2++;
+								}
+
+							}
+							if ((i >= 1) && (j >= 1) && (i <= 138) && (j <= 138)) {
+								String downRight = "" + matrix[i + 1][j + 1] + 'A' + matrix[i - 1][j - 1];
+								String downLeft = "" + matrix[i + 1][j - 1] + 'A' + matrix[i - 1][j + 1];
+								if (check2(downRight) && check2(downLeft)) {
+									result2++;
+								}
+							}
+
+						} catch (Exception e) {
+							ex++;
+						}
+
+					}
+				}
+			}
+
 			System.out.println(result);
+			System.out.println(result2);
 			// System.out.println(ex);
 
 		} catch (
@@ -107,6 +153,14 @@ public class Aufgabe_4 {
 
 	private static boolean check(String str) {
 		if ("XMAS".equals(str)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private static boolean check2(String str) {
+		if ("MAS".equals(str)) {
 			return true;
 		} else {
 			return false;
