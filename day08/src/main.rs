@@ -1,12 +1,11 @@
-use std::cmp::min;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 
 fn main() {
-    let path = Path::new("test.txt");
+    let path = Path::new("data.txt");
     let contents = fs::read_to_string(path).unwrap();
-    let map: Vec<&str> = contents.lines().collect();
+    let map: Vec<&str> = contents.lines().filter(|&l| l != "").collect();
 
     let mut antenna_map: HashMap<char, HashSet<(i32, i32)>> = HashMap::new();
 
@@ -29,46 +28,56 @@ fn main() {
     let row_cnt = map.len();
     let col_cnt = map.first().unwrap().len();
 
-    let result = calculate_antinodes(&antenna_map, row_cnt, col_cnt);
-    println!("{:?}", result);
+    let result = calculate_antinodes(&antenna_map, row_cnt, col_cnt, false);
 
     println!("Numer of unique antinode locations: {}", result.len());
+
+    let result = calculate_antinodes(&antenna_map, row_cnt, col_cnt, true);
+
+    println!(
+        "Numer of unique antinode locations considering resonant harmonics: {}",
+        result.len()
+    );
 }
 
 fn calculate_antinodes(
     antenna_map: &HashMap<char, HashSet<(i32, i32)>>,
     row_cnt: usize,
     col_cnt: usize,
+    resonance: bool,
 ) -> HashSet<(i32, i32)> {
     let mut result: HashSet<(i32, i32)> = HashSet::new();
     antenna_map.iter().for_each(|(_, set)| {
         let vec: Vec<_> = set.iter().collect();
         for i in 0..vec.len() {
             let &e1 = vec.get(i).unwrap();
-            for &e2 in &vec[i + 1..vec.len()] {
-                let x_diff = min(e1.0, e2.0) - e1.0.abs_diff(e2.0) as i32;
-                let y_diff = min(e1.1, e2.1) - e1.1.abs_diff(e2.1) as i32;
-                let mut a1 = e1.clone();
-                let mut a2 = e2.clone();
-                if e1.0 > e2.0 {
-                    a1.0 += x_diff;
-                    a2.0 -= x_diff;
-                } else {
-                    a1.0 -= x_diff;
-                    a2.0 += x_diff;
+            for j in 0..vec.len() {
+                if j == i {
+                    continue;
                 }
-                if e1.1 > e2.1 {
-                    a1.1 += y_diff;
-                    a2.1 -= y_diff;
-                } else {
-                    a1.1 -= y_diff;
-                    a2.1 += y_diff;
+                let &e2 = vec.get(j).unwrap();
+                let x_diff = e1.0 - e2.0;
+                let y_diff = e1.1 - e2.1;
+                let mut start = *e1;
+                if resonance {
+                    result.insert(start);
                 }
-                if a1.0 >= 0 && a1.0 < col_cnt as i32 && a1.1 >= 0 && a1.1 < row_cnt as i32 {
-                    result.insert(a1);
-                }
-                if a2.0 >= 0 && a2.0 < col_cnt as i32 && a2.1 >= 0 && a2.1 < row_cnt as i32 {
-                    result.insert(a2);
+                loop {
+                    let antinode = (start.0 + x_diff, start.1 + y_diff);
+                    if antinode.0 >= 0
+                        && antinode.0 < col_cnt as i32
+                        && antinode.1 >= 0
+                        && antinode.1 < row_cnt as i32
+                    {
+                        result.insert(antinode);
+                    } else {
+                        break;
+                    }
+
+                    if !resonance {
+                        break;
+                    }
+                    start = antinode;
                 }
             }
         }
